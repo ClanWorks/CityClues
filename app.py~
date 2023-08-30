@@ -1,0 +1,53 @@
+import sqlite3
+import random
+from geopy.distance import geodesic
+from flask import Flask, render_template, request, session
+from utils import get_coordinates
+import os
+
+app = Flask(__name__)
+
+# Get the secret key from the environment variable or use a default value
+app.secret_key = os.environ.get('SECRET_KEY_CC')
+
+# Get City and Clue from DB
+def get_random_city_and_clues():
+    conn = sqlite3.connect('game.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM Cities')
+    cities = cursor.fetchall()
+    random_city = random.choice(cities)
+    cursor.execute('SELECT * FROM Clues WHERE city_id=?', (random_city[0],))
+    clues = cursor.fetchall()
+    conn.close()
+    return random_city, clues
+
+@app.route('/')
+def index():
+    city, clues = get_random_city_and_clues()
+    session['city'] = city
+    session['clues'] = clues
+    session['shown_clues'] = [clues[0]]
+    session['remaining_guesses'] = 3
+    return render_template('index.html', clue=clues[0])
+
+@app.route('/guess', methods=['POST'])
+def guess():
+    user_guess = request.form['user_guess']
+    city, clues = get_random_city_and_clues()
+
+    if user_guess.lower() == city[1].lower():
+        return "Correct!"
+    else:
+        guessed_coords = get_coordinates(user_guess) 
+        if guessed_coords:
+            distance = geodesic((city[2], city[3]), guessed_coords).kilometers
+            return f"Wrong guess! You are {distance:.2f} km away from the correct city."
+        else:
+            return "Wrong guess! The city was not found."
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
+

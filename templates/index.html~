@@ -1,0 +1,21 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>City Clues Game</title>
+</head>
+<body>
+    <h1>Welcome to My Geography Game!</h1>
+    <h2>You are guessing: ???</h2>
+    <ul>
+        {% for clue in clues %}
+            <li>{{ clue[2] }}: {{ clue[3] }}</li>
+        {% endfor %}
+    </ul>
+    <form action="/guess" method="post">
+        <label for="user_guess">Your Guess:</label>
+        <input type="text" id="user_guess" name="user_guess">
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>
