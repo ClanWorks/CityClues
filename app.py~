@@ -34,17 +34,32 @@ def index():
 @app.route('/guess', methods=['POST'])
 def guess():
     user_guess = request.form['user_guess']
-    city, clues = get_random_city_and_clues()
+    city = session.get('city')
+    remaining_guesses = session.get('remaining_guesses') - 1
 
     if user_guess.lower() == city[1].lower():
         return "Correct!"
     else:
-        guessed_coords = get_coordinates(user_guess) 
-        if guessed_coords:
-            distance = geodesic((city[2], city[3]), guessed_coords).kilometers
-            return f"Wrong guess! You are {distance:.2f} km away from the correct city."
+        if remaining_guesses > 0:
+            session['remaining_guesses'] = remaining_guesses
+
+            # Show another clue, if available
+            shown_clues = session.get('shown_clues')
+            all_clues = session.get('clues')
+
+            if len(shown_clues) < len(all_clues):
+                new_clue = all_clues[len(shown_clues)]
+                shown_clues.append(new_clue)
+                session['shown_clues'] = shown_clues
+
+            guessed_coords = get_coordinates(user_guess)
+            if guessed_coords:
+                distance = geodesic((city[2], city[3]), guessed_coords).kilometers
+                return render_template('index.html', clue=new_clue, message=f"Wrong guess! You are {distance:.2f} km away from the correct city. You have {remaining_guesses} guesses left.")
+            else:
+                return render_template('index.html', clue=new_clue, message=f"Wrong guess! The city was not found. You have {remaining_guesses} guesses left.")
         else:
-            return "Wrong guess! The city was not found."
+            return "Game over! The correct city was " + city[1]
 
 if __name__ == '__main__':
     app.run(debug=True)

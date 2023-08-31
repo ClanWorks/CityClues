@@ -1,21 +1,50 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>City Clues Game</title>
+    <meta charset="UTF-8">
+    <title>City Guessing Game</title>
+    <style>
+        /* Add some basic styling */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+        }
+        h1 {
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+        h2 {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+        form {
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome to My Geography Game!</h1>
-    <h2>You are guessing: ???</h2>
-    <ul>
-        {% for clue in clues %}
-            <li>{{ clue[2] }}: {{ clue[3] }}</li>
-        {% endfor %}
-    </ul>
+
+    <h1>Welcome to the City Guessing Game!</h1>
+
+    <!-- Display the current clue -->
+    <h2>Clue: {{ clue[3] }}</h2>
+
+    <!-- Display the number of remaining guesses and any message -->
+    {% if message %}
+    <p>{{ message }}</p>
+    {% endif %}
+
+    <!-- Form to enter the guess -->
     <form action="/guess" method="post">
         <label for="user_guess">Your Guess:</label>
         <input type="text" id="user_guess" name="user_guess">
-        <input type="submit" value="Submit">
+        <input type="submit" value="Submit Guess">
     </form>
+
+    <!-- Optionally, display previous guesses or other game info -->
+    <!-- ... -->
+
 </body>
 </html>
+
